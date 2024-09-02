@@ -1,9 +1,39 @@
+from abc import ABC
 from typing import List, Tuple, Union
 from collections import OrderedDict
 
 import torch
 
-from epde.supplementary import AutogradDeriv
+class BasicDeriv(ABC):
+    def __init__(self, *args, **kwargs):
+        raise NotImplementedError('Trying to create abstract differentiation method')
+    
+    def take_derivative(self, u: torch.Tensor, args: torch.Tensor, axes: list):
+        raise NotImplementedError('Trying to differentiate with abstract differentiation method')
+
+
+class AutogradDeriv(BasicDeriv):
+    def __init__(self):
+        pass
+
+    def take_derivative(self, u: Union[torch.nn.Sequential, torch.Tensor], args: torch.Tensor, 
+                        axes: list = [], component: int = 0):
+        if not args.requires_grad:
+            args.requires_grad = True
+        if axes == [None,]:
+            return u(args)[..., component].reshape(-1, 1)
+        if isinstance(u, torch.nn.Sequential):
+            comp_sum = u(args)[..., component].sum(dim = 0)
+        elif isinstance(u, torch.Tensor):
+            raise TypeError('Autograd shall have torch.nn.Sequential as its inputs.')
+        else:
+            print(f'u.shape, {u.shape}')
+            comp_sum = u.sum(dim = 0)
+        for axis in axes:
+            output_vals = torch.autograd.grad(outputs = comp_sum, inputs = args, create_graph=True)[0]
+            comp_sum = output_vals[:, axis].sum()
+        output_vals = output_vals[:, axes[-1]].reshape(-1, 1)
+        return output_vals
 
 def prepare_control_inputs(model: torch.nn.Sequential, grid: torch.Tensor, 
                            args: List[Tuple[Union[int, List]]]) -> torch.Tensor:

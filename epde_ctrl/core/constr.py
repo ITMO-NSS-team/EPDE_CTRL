@@ -4,7 +4,12 @@ from abc import ABC, abstractmethod
 import numpy as np
 import torch
 
-from epde.supplementary import BasicDeriv
+class BasicDeriv(ABC):
+    def __init__(self, *args, **kwargs):
+        raise NotImplementedError('Trying to create abstract differentiation method')
+    
+    def take_derivative(self, u: torch.Tensor, args: torch.Tensor, axes: list):
+        raise NotImplementedError('Trying to differentiate with abstract differentiation method')
 
 class ConstrLocation():
     def __init__(self, domain_shape: Tuple[int], axis: int = None, loc: int = None, 

@@ -12,14 +12,14 @@ from typing import List, Union
 from copy import deepcopy
 
 
-import epde.globals as global_var
-from epde.interface.interface import ExperimentCombiner
-from epde.optimizers.moeadd.moeadd import ParetoLevels
-from epde.interface.solver_integration import SolverAdapter, BOPElement 
+from epde_ctrl.model import global_var
+from epde_ctrl.model import ExperimentCombiner
+from epde_ctrl.model import ParetoLevels
+from epde_ctrl.model import SolverAdapter, BOPElement 
 
-from epde.control.constr import ConditionalLoss
-from epde.control.utils import prepare_control_inputs, eps_increment_diff
-from epde.control.optim import AdamOptimizer
+from epde_ctrl.core.constr import ConditionalLoss
+from epde_ctrl.core.utils import prepare_control_inputs, eps_increment_diff
+from epde_ctrl.core.optim import AdamOptimizer
 
 class ControlExp():
     def __init__(self, loss : ConditionalLoss, device: str = 'cpu'):
